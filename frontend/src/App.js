@@ -6,9 +6,7 @@ function App() {
     Math.floor(new Date().getTime() / 1000)
   );
 
-  const [chatHistory, setChatHistory] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
-  // const [websckt, setWebsckt] = useState();
   const webscktRef = useRef(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -24,18 +22,13 @@ function App() {
       }
     };
 
-    // recieve message every start page
     ws.onmessage = (e) => {
       const receivedMessage = JSON.parse(e.data);
-      // setMessages([...messages, message]);
       setMessages(prevMessages => [...prevMessages, receivedMessage])
     };
 
-    // setWebsckt(ws);
     webscktRef.current = ws;
 
-    //clean up function when we close page
-    // return () => ws.close();
     return () => {
       if (webscktRef.current) {
         webscktRef.current.close();
@@ -43,16 +36,6 @@ function App() {
     }
 
   }, [clientId, isConnected]);
-
-  // const sendMessage = () => {
-  //   websckt.send(message);
-  //   // recieve message every send message
-  //   websckt.onmessage = (e) => {
-  //     const message = JSON.parse(e.data);
-  //     setMessages([...messages, message]);
-  //   };
-  //   setMessage([]);
-  // };
 
   const sendMessage = () => {
     if (!message.trim()) return; // Nếu tin nhắn rỗng thì không gửi
@@ -73,25 +56,6 @@ function App() {
               <p className="message">{value.message}</p>
             </div>
           </div>
-            // if (value.clientId === clientId) {
-            //   return (
-            //     <div key={index} className="my-message-container">
-            //       <div className="my-message">
-            //         <p className="client">client id : {clientId}</p>
-            //         <p className="message">{value.message}</p>
-            //       </div>
-            //     </div>
-            //   );
-            // } else {
-            //   return (
-            //     <div key={index} className="another-message-container">
-            //       <div className="another-message">
-            //         <p className="client">client id : {clientId}</p>
-            //         <p className="message">{value.message}</p>
-            //       </div>
-            //     </div>
-            //   );
-            // }
           ))}
         </div>
         <div className="input-chat-container">
