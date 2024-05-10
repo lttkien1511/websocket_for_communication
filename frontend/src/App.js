@@ -12,7 +12,7 @@ function App() {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const url = "ws://localhost:8000/ws/" + clientId;
+    const url = "ws://192.168.0.100:8000/ws/" + clientId;
     const ws = new WebSocket(url);
 
     ws.onopen = (event) => {

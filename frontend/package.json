@@ -2,20 +2,29 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "main": "public/main.js",
+  "homepage": "./",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "fastapi": "cd ../backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "electron:serve": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run fastapi\" \"npm run electron:start\" ",
+    "electron:build": "yarn build && electron-builder -c.extraMetadata.main=build/main.js",
+    "electron:start": "wait-on http://127.0.0.1:3000 && electron .",
+    "web": "concurrently \"npm start\" \"npm run fastapi\""
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +43,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "electron": "^30.0.2",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "wait-on": "^7.2.0"
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "author": "lttkien1511",
+  "license": "MIT"
 }
