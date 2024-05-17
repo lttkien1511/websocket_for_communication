@@ -2,67 +2,65 @@ import React, { useState, useEffect, useRef } from "react";
 import { getdata } from "../model/wirelessIP";
 
 function Websocket() {
-    const [clientId, setClientId] = useState(
-        Math.floor(new Date().getTime() / 1000)
-    );
+  const [clientId, setClienId] = useState(
+    Math.floor(new Date().getTime() / 1000)
+  );
 
-    const [isConnected, setIsConnected] = useState(false);
-    const webscktRef = useRef(null);
-    const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState([]);
-    const [ip, setip] = useState(0);
+  const [ip, setip] = useState(0);
+  const [isOnline, setIsOnline] = useState(false);
+  const [websckt, setWebsckt] = useState();
 
-    useEffect(() => {
-        getdata()
-        .then(response => {
-            if (response) {
-                setip(response.data)
+  const [message, setMessage] = useState([]);
+  const [messages, setMessages] = useState([]);
 
-            }
-        })
-        .catch(error => {
-            console.log(error);
-            // window.makeAlert('error', 'Error', error);
-        });
-    },[ip]);
+  useEffect(() => {
+    getdata()
+    .then((response) => {
+      if (response) {
+        setip(response.data);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      // window.makeAlert('error', 'Error', error);
+  });
+  }, [ip]);
 
-    useEffect(() => {
-        const url = `ws://${ip}:8000/ws/` + clientId;
-        const ws = new WebSocket(url);
+  useEffect(() => {
+    const url = `ws://${ip}:8000/ws/` + clientId;
+    const ws = new WebSocket(url);
 
-        ws.onopen = (event) => {
-        if (!isConnected) {
-            ws.send("Connect");
-            setIsConnected(true);
-        }
-        };
-
-        ws.onmessage = (e) => {
-            const receivedMessage = JSON.parse(e.data);
-            setMessages(prevMessages => [...prevMessages, receivedMessage])
-            if (messages.current) {
-                messages.current.scrollIntoView({ behavior: "smooth" });
-            }
-        };
-
-        webscktRef.current = ws;
-
-        return () => {
-        if (webscktRef.current) {
-            webscktRef.current.close();
-        }
-        }
-
-    }, [clientId, isConnected, ip]);
-
-    const sendMessage = () => {
-        if (!message.trim()) return; // Nếu tin nhắn rỗng thì không gửi
-        webscktRef.current.send(message); // Gửi tin nhắn qua WebSocket
-        setMessage(""); // Xóa nội dung tin nhắn sau khi gửi
-        console.log(ip);
+    ws.onopen = (event) => {
+      ws.send("Connect");
+      setIsOnline(true);
     };
 
-    return (
+    // recieve message every start page
+    // ws.onmessage = (e) => {
+    //   const receivedMessage = JSON.parse(e.data);
+    //   setMessages([...messages, receivedMessage]);
+    // };
+
+    ws.onmessage = (e) => {
+      const receivedMessage = JSON.parse(e.data);
+      setMessages(prevMessages => [...prevMessages, receivedMessage])
+    };
+
+    setWebsckt(ws);
+    //clean up function when we close page
+    return () => ws.close();
+  }, [ip, clientId]);
+
+  const sendMessage = () => {
+    websckt.send(message);
+    // recieve message every send message
+    websckt.onmessage = (e) => {
+      const message = JSON.parse(e.data);
+      setMessages([...messages, message]);
+    };
+    setMessage([]);
+  };
+  return (
     <div className="container">
       <h1>Chat</h1>
       <h2>Your client id: {clientId} </h2>
